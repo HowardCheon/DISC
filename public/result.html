@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISC 검사 결과</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DISC 성격 유형 검사 결과</h1>
+        </header>
+
+        <main>
+            <div class="result-container">
+                <div class="result-summary">
+                    <h2>당신의 주요 성격 유형</h2>
+                    <div class="main-type" id="mainType">
+                        <!-- 동적으로 생성 -->
+                    </div>
+                </div>
+
+                <div class="result-chart">
+                    <h3>상세 결과</h3>
+                    <canvas id="resultChart" width="400" height="300"></canvas>
+                </div>
+
+                <div class="result-description">
+                    <div class="type-descriptions">
+                        <div class="type-card" id="dType">
+                            <h4>D - 주도형 (Dominance)</h4>
+                            <p>결과 지향적이고 도전을 즐기며 직접적인 성향</p>
+                            <div class="score" id="dScore">0%</div>
+                        </div>
+
+                        <div class="type-card" id="iType">
+                            <h4>I - 사교형 (Influence)</h4>
+                            <p>사람들과의 관계를 중시하고 활발하며 낙관적인 성향</p>
+                            <div class="score" id="iScore">0%</div>
+                        </div>
+
+                        <div class="type-card" id="sType">
+                            <h4>S - 안정형 (Steadiness)</h4>
+                            <p>안정성을 추구하고 참을성이 많으며 협조적인 성향</p>
+                            <div class="score" id="sScore">0%</div>
+                        </div>
+
+                        <div class="type-card" id="cType">
+                            <h4>C - 신중형 (Conscientiousness)</h4>
+                            <p>정확성을 중시하고 분석적이며 체계적인 성향</p>
+                            <div class="score" id="cScore">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="window.print()">결과 인쇄</button>
+                    <a href="index.html" class="btn btn-secondary">다시 시작</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/result.js"></script>
+</body>
+</html>

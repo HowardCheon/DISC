@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISC 검사 - 질문</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DISC 성격 유형 검사</h1>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <p>질문 <span id="currentQuestion">1</span> / 48</p>
+        </header>
+
+        <main>
+            <div class="question-container">
+                <h2 id="questionText">다음 중 가장 자신과 비슷한 것을 선택하세요:</h2>
+
+                <div class="options-container">
+                    <div class="option-group">
+                        <h3>가장 비슷한 것</h3>
+                        <div class="options" id="mostLike">
+                            <!-- 동적으로 생성 -->
+                        </div>
+                    </div>
+
+                    <div class="option-group">
+                        <h3>가장 다른 것</h3>
+                        <div class="options" id="leastLike">
+                            <!-- 동적으로 생성 -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation">
+                    <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>이전</button>
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>다음</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/questions.js"></script>
+    <script src="js/test.js"></script>
+</body>
+</html>
