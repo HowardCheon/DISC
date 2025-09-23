@@ -99,11 +99,17 @@ class StaticDiscTest {
         if (answer) {
             if (answer.mostLike !== undefined) {
                 const radio = document.querySelector(`input[name="mostLike_${this.currentQuestion}"][value="${answer.mostLike}"]`);
-                if (radio) radio.checked = true;
+                if (radio) {
+                    radio.checked = true;
+                    this.updateOptionStyles(radio);
+                }
             }
             if (answer.leastLike !== undefined) {
                 const radio = document.querySelector(`input[name="leastLike_${this.currentQuestion}"][value="${answer.leastLike}"]`);
-                if (radio) radio.checked = true;
+                if (radio) {
+                    radio.checked = true;
+                    this.updateOptionStyles(radio);
+                }
             }
         }
     }
@@ -143,9 +149,22 @@ class StaticDiscTest {
             this.answers[this.currentQuestion].leastLike = value;
         }
 
+        // Update visual styling for selected options
+        this.updateOptionStyles(radio);
         this.checkForConflicts();
         this.updateNavigationButtons();
         this.saveAnswers();
+    }
+
+    updateOptionStyles(selectedRadio) {
+        const container = selectedRadio.closest('.option-group');
+        const allOptions = container.querySelectorAll('.option-item');
+
+        // Remove selected class from all options in this group
+        allOptions.forEach(item => item.classList.remove('selected'));
+
+        // Add selected class to the selected option
+        selectedRadio.closest('.option-item').classList.add('selected');
     }
 
     checkForConflicts() {
