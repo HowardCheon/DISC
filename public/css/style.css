@@ -243,6 +243,18 @@ header p {
     color: #999;
 }
 
+/* Question Text */
+#questionText {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2rem;
+    text-align: center;
+    line-height: 1.5;
+    word-break: keep-all;
+    overflow-wrap: normal;
+}
+
 /* Results */
 .result-summary {
     text-align: center;
