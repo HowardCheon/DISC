@@ -65,7 +65,7 @@ class StaticDiscTest {
 
         // 질문 텍스트 업데이트
         document.getElementById('questionText').textContent =
-            `다음 중 가장 자신과 비슷한 것과 가장 다른 것을 각각 선택하세요:`;
+            `다음 특성들 중에서 가장 자신과 비슷한 것과 가장 다른 것을 각각 하나씩 선택하세요:`;
 
         // 옵션 렌더링
         this.renderOptions('mostLike', question.options, '가장 비슷한 것');
@@ -85,6 +85,7 @@ class StaticDiscTest {
         options.forEach((option, index) => {
             const optionDiv = document.createElement('div');
             optionDiv.className = 'option-item';
+            optionDiv.setAttribute('data-option-index', index);
             optionDiv.innerHTML = `
                 <input type="radio" id="${type}_${this.currentQuestion}_${index}"
                        name="${type}_${this.currentQuestion}" value="${index}">
@@ -111,6 +112,8 @@ class StaticDiscTest {
                     this.updateOptionStyles(radio);
                 }
             }
+            // Update option availability after restoring answers
+            this.updateOptionAvailability();
         }
     }
 
@@ -136,22 +139,33 @@ class StaticDiscTest {
         const radio = event.target;
         const name = radio.name;
         const value = parseInt(radio.value);
+        const answerType = name.startsWith('mostLike_') ? 'mostLike' : 'leastLike';
 
-        if (name.startsWith('mostLike_')) {
-            if (!this.answers[this.currentQuestion]) {
-                this.answers[this.currentQuestion] = {};
-            }
-            this.answers[this.currentQuestion].mostLike = value;
-        } else if (name.startsWith('leastLike_')) {
-            if (!this.answers[this.currentQuestion]) {
-                this.answers[this.currentQuestion] = {};
-            }
-            this.answers[this.currentQuestion].leastLike = value;
+        // Initialize answer object if needed
+        if (!this.answers[this.currentQuestion]) {
+            this.answers[this.currentQuestion] = {};
         }
 
-        // Update visual styling for selected options
+        // Check if this choice conflicts with the other selection
+        const otherType = answerType === 'mostLike' ? 'leastLike' : 'mostLike';
+        const currentAnswer = this.answers[this.currentQuestion];
+
+        if (currentAnswer[otherType] === value) {
+            // Same option selected for both, show warning and prevent selection
+            this.showConflictWarning();
+            radio.checked = false;
+            return;
+        }
+
+        // Clear any existing conflict warning
+        this.hideConflictWarning();
+
+        // Store the answer
+        this.answers[this.currentQuestion][answerType] = value;
+
+        // Update visual styling and enable/disable options
         this.updateOptionStyles(radio);
-        this.checkForConflicts();
+        this.updateOptionAvailability();
         this.updateNavigationButtons();
         this.saveAnswers();
     }
@@ -165,6 +179,44 @@ class StaticDiscTest {
 
         // Add selected class to the selected option
         selectedRadio.closest('.option-item').classList.add('selected');
+    }
+
+    updateOptionAvailability() {
+        const currentAnswer = this.answers[this.currentQuestion];
+        if (!currentAnswer) return;
+
+        const mostLikeOptions = document.querySelectorAll(`input[name="mostLike_${this.currentQuestion}"]`);
+        const leastLikeOptions = document.querySelectorAll(`input[name="leastLike_${this.currentQuestion}"]`);
+
+        // Reset all options
+        [...mostLikeOptions, ...leastLikeOptions].forEach(radio => {
+            const optionItem = radio.closest('.option-item');
+            optionItem.classList.remove('disabled');
+            radio.disabled = false;
+        });
+
+        // Disable conflicting options
+        if (currentAnswer.mostLike !== undefined) {
+            const conflictingLeastLike = document.querySelector(
+                `input[name="leastLike_${this.currentQuestion}"][value="${currentAnswer.mostLike}"]`
+            );
+            if (conflictingLeastLike) {
+                const optionItem = conflictingLeastLike.closest('.option-item');
+                optionItem.classList.add('disabled');
+                conflictingLeastLike.disabled = true;
+            }
+        }
+
+        if (currentAnswer.leastLike !== undefined) {
+            const conflictingMostLike = document.querySelector(
+                `input[name="mostLike_${this.currentQuestion}"][value="${currentAnswer.leastLike}"]`
+            );
+            if (conflictingMostLike) {
+                const optionItem = conflictingMostLike.closest('.option-item');
+                optionItem.classList.add('disabled');
+                conflictingMostLike.disabled = true;
+            }
+        }
     }
 
     checkForConflicts() {
@@ -184,15 +236,34 @@ class StaticDiscTest {
             warning.style.cssText = `
                 background: #ffebee;
                 color: #c62828;
-                padding: 10px;
-                margin: 10px 0;
-                border-radius: 4px;
+                padding: 15px;
+                margin: 15px 0;
+                border-radius: 8px;
                 border-left: 4px solid #c62828;
+                font-weight: 600;
+                text-align: center;
+                animation: shake 0.5s ease-in-out;
             `;
-            warning.textContent = '⚠️ 같은 답변을 선택할 수 없습니다. 다른 답변을 선택해주세요.';
+            warning.innerHTML = '⚠️ 같은 답변을 선택할 수 없습니다. 다른 답변을 선택해주세요.';
             document.querySelector('.question-container').appendChild(warning);
+
+            // Add shake animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-5px); }
+                    75% { transform: translateX(5px); }
+                }
+            `;
+            document.head.appendChild(style);
         }
         warning.style.display = 'block';
+
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+            this.hideConflictWarning();
+        }, 3000);
     }
 
     hideConflictWarning() {

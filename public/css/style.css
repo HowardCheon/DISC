@@ -156,6 +156,7 @@ header p {
 /* Options */
 .options-container {
     display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
     margin: 2rem 0;
 }
@@ -218,6 +219,28 @@ header p {
 .option-item.selected {
     border-color: #667eea;
     background: #f8f9ff;
+}
+
+.option-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f5f5f5;
+    border-color: #ddd;
+}
+
+.option-item.disabled:hover {
+    border-color: #ddd;
+    box-shadow: none;
+    transform: none;
+}
+
+.option-item.disabled input[type="radio"] {
+    cursor: not-allowed;
+}
+
+.option-item.disabled label {
+    cursor: not-allowed;
+    color: #999;
 }
 
 /* Results */
@@ -354,6 +377,7 @@ footer {
     }
 
     .options-container {
+        grid-template-columns: 1fr;
         gap: 1rem;
     }
 
