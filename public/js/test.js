@@ -163,6 +163,10 @@ class StaticDiscTest {
         // Store the answer
         this.answers[this.currentQuestion][answerType] = value;
 
+        // 디버깅을 위한 로그
+        console.log(`Stored ${answerType}:`, value, 'for question:', this.currentQuestion);
+        console.log('Current answers:', this.answers[this.currentQuestion]);
+
         // Update visual styling and enable/disable options
         this.updateOptionStyles(radio);
         this.updateOptionAvailability();
@@ -306,6 +310,12 @@ class StaticDiscTest {
 
     nextQuestion() {
         const answer = this.answers[this.currentQuestion];
+
+        // 디버깅을 위한 로그
+        console.log('Current question:', this.currentQuestion);
+        console.log('Answer object:', answer);
+        console.log('mostLike:', answer?.mostLike);
+        console.log('leastLike:', answer?.leastLike);
 
         if (!answer || answer.mostLike === undefined || answer.leastLike === undefined) {
             alert('모든 항목을 선택해주세요.');
