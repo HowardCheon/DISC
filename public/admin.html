@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISC 검사 관리자</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DISC 검사 관리자</h1>
+            <div class="admin-nav">
+                <button class="nav-btn active" onclick="showSection('dashboard')">대시보드</button>
+                <button class="nav-btn" onclick="showSection('results')">검사 결과</button>
+                <button class="nav-btn" onclick="showSection('stats')">통계</button>
+                <button class="nav-btn" onclick="showSection('settings')">설정</button>
+                <button class="nav-btn logout" onclick="logout()">로그아웃</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- 대시보드 섹션 -->
+            <div id="dashboard" class="admin-section active">
+                <h2>대시보드</h2>
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <h3>총 테스트 수</h3>
+                        <div class="stat-number" id="totalTests">0</div>
+                    </div>
+                    <div class="card">
+                        <h3>오늘 테스트</h3>
+                        <div class="stat-number" id="todayTests">0</div>
+                    </div>
+                    <div class="card">
+                        <h3>이번 주 테스트</h3>
+                        <div class="stat-number" id="weekTests">0</div>
+                    </div>
+                    <div class="card">
+                        <h3>평균 점수</h3>
+                        <div class="stat-number" id="avgScore">0</div>
+                    </div>
+                </div>
+
+                <div class="recent-tests">
+                    <h3>최근 테스트 결과</h3>
+                    <div id="recentTestsList"></div>
+                </div>
+            </div>
+
+            <!-- 검사 결과 섹션 -->
+            <div id="results" class="admin-section">
+                <h2>검사 결과 관리</h2>
+                <div class="search-controls">
+                    <input type="text" id="searchInput" placeholder="이름으로 검색...">
+                    <input type="date" id="dateFilter">
+                    <button onclick="searchResults()">검색</button>
+                    <button onclick="exportResults()">내보내기</button>
+                </div>
+                <div id="resultsTable"></div>
+            </div>
+
+            <!-- 통계 섹션 -->
+            <div id="stats" class="admin-section">
+                <h2>통계 분석</h2>
+                <div class="stats-charts">
+                    <div class="chart-container">
+                        <h3>DISC 유형별 분포</h3>
+                        <canvas id="typeDistributionChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>월별 테스트 현황</h3>
+                        <canvas id="monthlyChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 설정 섹션 -->
+            <div id="settings" class="admin-section">
+                <h2>시스템 설정</h2>
+                <div class="settings-form">
+                    <div class="setting-group">
+                        <h3>데이터 관리</h3>
+                        <button onclick="clearOldData()" class="btn btn-warning">30일 이전 데이터 정리</button>
+                        <button onclick="clearAllData()" class="btn btn-danger">모든 데이터 삭제</button>
+                    </div>
+                    <div class="setting-group">
+                        <h3>백업/복원</h3>
+                        <button onclick="backupData()" class="btn btn-primary">데이터 백업</button>
+                        <input type="file" id="restoreFile" accept=".json" style="display: none;">
+                        <button onclick="document.getElementById('restoreFile').click()" class="btn btn-secondary">데이터 복원</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
