@@ -50,7 +50,6 @@ class StaticDiscTest {
     }
 
     renderCurrentQuestion() {
-        console.log('Rendering question:', this.currentQuestion);
         const question = DISC_QUESTIONS[this.currentQuestion];
         if (!question) {
             this.showResults();
@@ -163,10 +162,6 @@ class StaticDiscTest {
 
         // Store the answer
         this.answers[this.currentQuestion][answerType] = value;
-
-        // 디버깅을 위한 로그
-        console.log(`Stored ${answerType}:`, value, 'for question:', this.currentQuestion);
-        console.log('Current answers:', this.answers[this.currentQuestion]);
 
         // Update visual styling and enable/disable options
         this.updateOptionStyles(radio);
@@ -310,15 +305,9 @@ class StaticDiscTest {
     }
 
     nextQuestion() {
-        // 현재 질문의 답변 확인 (질문 번호 증가 전)
         const answer = this.answers[this.currentQuestion];
 
-        // 디버깅을 위한 로그
-        console.log('Checking answers for question:', this.currentQuestion);
-        console.log('Answer object:', answer);
-
         if (!answer || answer.mostLike === undefined || answer.leastLike === undefined) {
-            console.log('Missing answers - mostLike:', answer?.mostLike, 'leastLike:', answer?.leastLike);
             alert('모든 항목을 선택해주세요.');
             return;
         }
