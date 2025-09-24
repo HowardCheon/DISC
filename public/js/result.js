@@ -86,7 +86,7 @@ class DiscResultsDisplay {
         this.displayUserInfo();
         this.displayMainType();
         this.displayScores();
-        this.displayChart();
+        this.displayCharts();
         this.displayDetailedDescriptions();
     }
 
@@ -135,71 +135,314 @@ class DiscResultsDisplay {
         });
     }
 
-    displayChart() {
-        const canvas = document.getElementById('resultChart');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
+    displayCharts() {
         const types = ['D', 'I', 'S', 'C'];
+        const scores = types.map(type => this.results.results.scores[type]);
         const percentages = types.map(type => this.results.results.percentages[type]);
-        const colors = types.map(type => this.typeDescriptions[type].color);
 
-        this.drawBarChart(ctx, canvas.width, canvas.height, types, percentages, colors);
+        // 그래프 I: 기본 점수 (0-28 스케일)
+        this.drawChart1(scores, types);
+
+        // 그래프 II: 정규화 점수 (중앙선 기준)
+        this.drawChart2(percentages, types);
+
+        // 그래프 III: 상대적 편차 (+/- 값)
+        this.drawChart3(percentages, types);
     }
 
-    drawBarChart(ctx, width, height, labels, data, colors) {
+    // 그래프 I: 기본 점수 차트 (0-28 스케일, 상단에서 시작)
+    drawChart1(scores, types) {
+        const canvas = document.getElementById('chart1');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
         ctx.clearRect(0, 0, width, height);
 
         const padding = 40;
         const chartWidth = width - padding * 2;
         const chartHeight = height - padding * 2;
-        const barWidth = chartWidth / labels.length * 0.6;
-        const maxValue = Math.max(...data, 50); // 최소 50%까지 표시
+        const colWidth = chartWidth / 4;
+        const maxScore = 28;
 
         // 배경
-        ctx.fillStyle = '#f7fafc';
+        ctx.fillStyle = '#f8f9fa';
         ctx.fillRect(0, 0, width, height);
 
-        // 축 그리기
-        ctx.strokeStyle = '#e2e8f0';
+        // 격자선과 라벨 (왼쪽에서 오른쪽으로: D, I, S, C)
+        ctx.strokeStyle = '#dee2e6';
         ctx.lineWidth = 1;
 
-        // Y축 격자
-        for (let i = 0; i <= 5; i++) {
-            const y = padding + (chartHeight / 5) * i;
+        // 수평 격자선 (1-7 스케일)
+        for (let i = 1; i <= 7; i++) {
+            const y = padding + ((8 - i) * chartHeight / 7);
             ctx.beginPath();
             ctx.moveTo(padding, y);
             ctx.lineTo(width - padding, y);
             ctx.stroke();
 
-            // Y축 라벨
-            ctx.fillStyle = '#718096';
+            // 왼쪽 라벨
+            ctx.fillStyle = '#6c757d';
             ctx.font = '12px Arial';
             ctx.textAlign = 'right';
-            ctx.fillText(`${Math.round((5 - i) * maxValue / 5)}%`, padding - 5, y + 4);
+            ctx.fillText(i.toString(), padding - 10, y + 4);
         }
 
-        // 막대 그래프 그리기
-        labels.forEach((label, index) => {
-            const barHeight = (data[index] / maxValue) * chartHeight;
-            const x = padding + (chartWidth / labels.length) * index + (chartWidth / labels.length - barWidth) / 2;
-            const y = padding + chartHeight - barHeight;
+        // 수직선 및 데이터 포인트
+        types.forEach((type, index) => {
+            const x = padding + colWidth * index + colWidth / 2;
 
-            // 막대
-            ctx.fillStyle = colors[index];
-            ctx.fillRect(x, y, barWidth, barHeight);
+            // 수직선
+            ctx.beginPath();
+            ctx.moveTo(x, padding);
+            ctx.lineTo(x, height - padding);
+            ctx.stroke();
 
-            // 값 표시
-            ctx.fillStyle = '#2d3748';
-            ctx.font = 'bold 14px Arial';
+            // 데이터 포인트
+            const score = scores[index];
+            const normalizedScore = Math.min(Math.max(score / 4, 1), 7); // 0-28을 1-7로 변환
+            const dotY = padding + ((8 - normalizedScore) * chartHeight / 7);
+
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x, dotY, 4, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // 점수 표시
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`${data[index]}%`, x + barWidth / 2, y - 10);
+            ctx.fillText(score.toString(), x, dotY - 10);
+
+            // 하단 타입 라벨
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText(type, x, height - 10);
+        });
+
+        // 상단 제목
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('강도', width / 2, 20);
+    }
+
+    // 그래프 II: 정규화 점수 차트 (중앙선 기준)
+    drawChart2(percentages, types) {
+        const canvas = document.getElementById('chart2');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        const padding = 40;
+        const chartWidth = width - padding * 2;
+        const chartHeight = height - padding * 2;
+        const colWidth = chartWidth / 4;
+        const centerY = padding + chartHeight / 2;
+
+        // 배경
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(0, 0, width, height);
+
+        // 격자선
+        ctx.strokeStyle = '#dee2e6';
+        ctx.lineWidth = 1;
+
+        // 수평 격자선 (1-7 스케일)
+        for (let i = 1; i <= 7; i++) {
+            const y = padding + ((8 - i) * chartHeight / 7);
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.stroke();
+
+            // 왼쪽 라벨
+            ctx.fillStyle = '#6c757d';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(i.toString(), padding - 10, y + 4);
+        }
+
+        // 중앙선 강조
+        ctx.strokeStyle = '#adb5bd';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(padding, centerY);
+        ctx.lineTo(width - padding, centerY);
+        ctx.stroke();
+
+        // 데이터 포인트와 연결선
+        const points = [];
+        types.forEach((type, index) => {
+            const x = padding + colWidth * index + colWidth / 2;
+
+            // 수직선
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x, padding);
+            ctx.lineTo(x, height - padding);
+            ctx.stroke();
+
+            // 정규화된 점수 계산 (25%를 중앙선으로)
+            const normalizedScore = (percentages[index] - 25) / 25 * 3.5 + 4; // 1-7 스케일로 변환
+            const clampedScore = Math.min(Math.max(normalizedScore, 1), 7);
+            const dotY = padding + ((8 - clampedScore) * chartHeight / 7);
+
+            points.push({ x, y: dotY });
+
+            // 데이터 포인트
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x, dotY, 4, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // 점수 표시
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(percentages[index].toString(), x, dotY - 10);
+
+            // 하단 타입 라벨
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText(type, x, height - 10);
+        });
+
+        // 점들을 연결하는 선
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.stroke();
+
+        // 상단 제목
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('강도', width / 2, 20);
+    }
+
+    // 그래프 III: 상대적 편차 차트 (+/- 값)
+    drawChart3(percentages, types) {
+        const canvas = document.getElementById('chart3');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        const padding = 40;
+        const chartWidth = width - padding * 2;
+        const chartHeight = height - padding * 2;
+        const colWidth = chartWidth / 4;
+        const centerY = padding + chartHeight / 2;
+        const average = percentages.reduce((a, b) => a + b, 0) / percentages.length;
+
+        // 배경
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(0, 0, width, height);
+
+        // 격자선
+        ctx.strokeStyle = '#dee2e6';
+        ctx.lineWidth = 1;
+
+        // 수평 격자선 (-27 to +27)
+        for (let i = -27; i <= 27; i += 9) {
+            const normalizedPos = (i + 27) / 54; // 0-1 범위로 정규화
+            const y = padding + (1 - normalizedPos) * chartHeight;
+
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.stroke();
 
             // 라벨
-            ctx.fillStyle = '#4a5568';
+            if (i !== 0) {
+                ctx.fillStyle = '#6c757d';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(i > 0 ? `+${i}` : i.toString(), padding - 10, y + 4);
+            }
+        }
+
+        // 중앙선 (0선) 강조
+        ctx.strokeStyle = '#adb5bd';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(padding, centerY);
+        ctx.lineTo(width - padding, centerY);
+        ctx.stroke();
+
+        // 0 라벨
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText('0', padding - 10, centerY + 4);
+
+        // 데이터 포인트와 연결선
+        const points = [];
+        types.forEach((type, index) => {
+            const x = padding + colWidth * index + colWidth / 2;
+
+            // 수직선
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x, padding);
+            ctx.lineTo(x, height - padding);
+            ctx.stroke();
+
+            // 편차 계산
+            const deviation = percentages[index] - average;
+            const clampedDeviation = Math.min(Math.max(deviation, -27), 27);
+            const normalizedPos = (clampedDeviation + 27) / 54;
+            const dotY = padding + (1 - normalizedPos) * chartHeight;
+
+            points.push({ x, y: dotY });
+
+            // 데이터 포인트
+            ctx.fillStyle = deviation >= 0 ? '#28a745' : '#dc3545';
+            ctx.beginPath();
+            ctx.arc(x, dotY, 4, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // 편차 값 표시
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            const deviationText = deviation >= 0 ? `+${Math.round(deviation)}` : Math.round(deviation).toString();
+            ctx.fillText(deviationText, x, dotY - 10);
+
+            // 하단 타입 라벨
+            ctx.fillStyle = '#000';
             ctx.font = 'bold 16px Arial';
-            ctx.fillText(label, x + barWidth / 2, height - padding + 20);
+            ctx.fillText(type, x, height - 10);
         });
+
+        // 점들을 연결하는 선
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.stroke();
+
+        // 상단 제목
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('강도', width / 2, 20);
     }
 
     displayDetailedDescriptions() {
@@ -287,6 +530,59 @@ class DiscResultsDisplay {
 // CSS 스타일 추가
 const additionalStyles = `
     <style>
+        .charts-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .chart-section {
+            flex: 1;
+            min-width: 300px;
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .chart-section h4 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .chart-section canvas {
+            border: 1px solid #e9ecef;
+            background: #fff;
+        }
+
+        .result-charts {
+            margin: 30px 0;
+        }
+
+        .result-charts h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .chart-section {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+
         .primary-type {
             padding: 20px;
             margin: 20px 0;
