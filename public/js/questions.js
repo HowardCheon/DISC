@@ -3,9 +3,9 @@ const DISC_QUESTIONS = [
     {
         id: 1,
         options: [
-            { text: "명령적인", type: "D" },
+            { text: "열정적인", type: "I" },
             { text: "대담한", type: "D" },
-            { text: "지휘적", type: "D" },
+            { text: "치밀한", type: "C" },
             { text: "만족해 하는", type: "S" }
         ]
     },
@@ -14,8 +14,8 @@ const DISC_QUESTIONS = [
         options: [
             { text: "신중한", type: "C" },
             { text: "결단력 있는", type: "D" },
-            { text: "활실을 주는", type: "I" },
-            { text: "온의적인", type: "S" }
+            { text: "확신을 주는", type: "I" },
+            { text: "호의적인", type: "S" }
         ]
     },
     {
@@ -23,7 +23,7 @@ const DISC_QUESTIONS = [
         options: [
             { text: "다정한", type: "S" },
             { text: "정확한", type: "C" },
-            { text: "충실하게 맡하는", type: "S" },
+            { text: "솔직하게 말하는", type: "I" },
             { text: "변화가 적은", type: "C" }
         ]
     },
@@ -50,7 +50,7 @@ const DISC_QUESTIONS = [
         options: [
             { text: "온화한", type: "S" },
             { text: "설득력 있는", type: "I" },
-            { text: "검소한", type: "C" },
+            { text: "겸손한", type: "C" },
             { text: "독창적 아이디어 내는", type: "D" }
         ]
     },
@@ -60,7 +60,7 @@ const DISC_QUESTIONS = [
             { text: "표현력 있는", type: "I" },
             { text: "조심성 있는", type: "C" },
             { text: "주도적인", type: "D" },
-            { text: "만족한 반응하는", type: "S" }
+            { text: "민감히 반응하는", type: "S" }
         ]
     },
     {
@@ -68,15 +68,15 @@ const DISC_QUESTIONS = [
         options: [
             { text: "호의적인", type: "S" },
             { text: "세심한", type: "C" },
-            { text: "점순한", type: "S" },
-            { text: "착을설이 적은", type: "C" }
+            { text: "겸손한", type: "C" },
+            { text: "참을성이 적은", type: "D" }
         ]
     },
     {
         id: 9,
         options: [
             { text: "사려깊은", type: "C" },
-            { text: "낱 의견에 잘 동의하는", type: "S" },
+            { text: "남 의견에 잘 동의하는", type: "S" },
             { text: "매력적인", type: "I" },
             { text: "확고한", type: "D" }
         ]
@@ -86,8 +86,8 @@ const DISC_QUESTIONS = [
         options: [
             { text: "용감한", type: "D" },
             { text: "격려 하는", type: "I" },
-            { text: "조용 하는", type: "S" },
-            { text: "주좁이 하는", type: "C" }
+            { text: "순응 하는", type: "S" },
+            { text: "수줍어 하는", type: "C" }
         ]
     },
     {
@@ -102,8 +102,8 @@ const DISC_QUESTIONS = [
     {
         id: 12,
         options: [
-            { text: "날을 격려하는", type: "I" },
-            { text: "신중한", type: "C" },
+            { text: "남을 격려하는", type: "I" },
+            { text: "친절한", type: "S" },
             { text: "주의깊은", type: "C" },
             { text: "독립심 강한", type: "D" }
         ]
@@ -112,26 +112,26 @@ const DISC_QUESTIONS = [
         id: 13,
         options: [
             { text: "경쟁심 있는", type: "D" },
-            { text: "새전이 깊은", type: "S" },
-            { text: "털직한", type: "I" },
-            { text: "자신을 잘 드러내지 않은", type: "C" }
+            { text: "생각이 깊은", type: "C" },
+            { text: "활발한", type: "I" },
+            { text: "자신을 잘 드러내지 않은", type: "S" }
         ]
     },
     {
         id: 14,
         options: [
             { text: "세밀한", type: "C" },
-            { text: "유쾌한", type: "I" },
-            { text: "완고한", type: "C" },
-            { text: "놓기 좋아하는", type: "I" }
+            { text: "유순한", type: "S" },
+            { text: "완고한", type: "D" },
+            { text: "놀기 좋아하는", type: "I" }
         ]
     },
     {
         id: 15,
         options: [
-            { text: "사람에게 도왐주는", type: "S" },
+            { text: "사람에게 호감주는", type: "I" },
             { text: "생각이 깊은", type: "C" },
-            { text: "의지가 깊은", type: "D" },
+            { text: "의지가 굳은", type: "D" },
             { text: "일관되게 행동하는", type: "S" }
         ]
     },
@@ -148,7 +148,7 @@ const DISC_QUESTIONS = [
         id: 17,
         options: [
             { text: "사교적인", type: "I" },
-            { text: "침을성 있는", type: "S" },
+            { text: "참을성 있는", type: "S" },
             { text: "자신감 있는", type: "D" },
             { text: "말씨가 부드러운", type: "S" }
         ]
@@ -158,7 +158,7 @@ const DISC_QUESTIONS = [
         options: [
             { text: "의존적인", type: "S" },
             { text: "의욕적인", type: "D" },
-            { text: "침전한", type: "C" },
+            { text: "철저한", type: "C" },
             { text: "활기 있는", type: "I" }
         ]
     },
@@ -166,16 +166,16 @@ const DISC_QUESTIONS = [
         id: 19,
         options: [
             { text: "의욕적인", type: "D" },
-            { text: "인내적인", type: "S" },
-            { text: "친근한", type: "I" },
-            { text: "깊은을 퍼하는", type: "C" }
+            { text: "외향적인", type: "I" },
+            { text: "친근한", type: "S" },
+            { text: "갈등을 피하는", type: "C" }
         ]
     },
     {
         id: 20,
         options: [
-            { text: "우미가 있는", type: "I" },
-            { text: "이해성 있는", type: "S" },
+            { text: "유머가 있는", type: "I" },
+            { text: "이해심 있는", type: "S" },
             { text: "공평한", type: "C" },
             { text: "단호한", type: "D" }
         ]
@@ -183,35 +183,35 @@ const DISC_QUESTIONS = [
     {
         id: 21,
         options: [
-            { text: "자체력 있는", type: "D" },
+            { text: "자제력 있는", type: "C" },
             { text: "관대한", type: "S" },
             { text: "활기 있는", type: "I" },
-            { text: "고집스러운", type: "C" }
+            { text: "고집스러운", type: "D" }
         ]
     },
     {
         id: 22,
         options: [
-            { text: "제치있는", type: "I" },
+            { text: "재치있는", type: "I" },
             { text: "내향적인", type: "C" },
             { text: "강인한", type: "D" },
-            { text: "침게넘게 없는", type: "S" }
+            { text: "쉽게화내지 않는", type: "S" }
         ]
     },
     {
         id: 23,
         options: [
             { text: "남과 잘 어울리는", type: "I" },
-            { text: "침착한", type: "C" },
+            { text: "점잖은", type: "C" },
             { text: "활기찬", type: "I" },
-            { text: "나누려운", type: "D" }
+            { text: "너그러운", type: "S" }
         ]
     },
     {
         id: 24,
         options: [
-            { text: "매혹하는", type: "I" },
-            { text: "음측해 하는", type: "C" },
+            { text: "매력있는", type: "I" },
+            { text: "흡족해 하는", type: "S" },
             { text: "지시하는", type: "D" },
             { text: "양보하는", type: "S" }
         ]
@@ -220,7 +220,7 @@ const DISC_QUESTIONS = [
         id: 25,
         options: [
             { text: "자기 주장을 하는", type: "D" },
-            { text: "세심적인", type: "C" },
+            { text: "체계적인", type: "C" },
             { text: "협력적인", type: "S" },
             { text: "즐거운", type: "I" }
         ]
@@ -228,7 +228,7 @@ const DISC_QUESTIONS = [
     {
         id: 26,
         options: [
-            { text: "규제한", type: "C" },
+            { text: "유쾌한", type: "I" },
             { text: "정교한", type: "C" },
             { text: "결과를 요구하는", type: "D" },
             { text: "침착한", type: "S" }
@@ -239,17 +239,17 @@ const DISC_QUESTIONS = [
         options: [
             { text: "변화를 추구하는", type: "D" },
             { text: "우호적인", type: "S" },
-            { text: "호소적 있는", type: "I" },
-            { text: "꿈물한", type: "C" }
+            { text: "호소력 있는", type: "I" },
+            { text: "꼼꼼한", type: "C" }
         ]
     },
     {
         id: 28,
         options: [
-            { text: "음소창", type: "C" },
-            { text: "새로게 시작하는", type: "D" },
+            { text: "공손한", type: "S" },
+            { text: "새롭게 시작하는", type: "D" },
             { text: "낙천적인", type: "I" },
-            { text: "도음을 주려하는", type: "S" }
+            { text: "도움을 주려하는", type: "C" }
         ]
     }
 ];

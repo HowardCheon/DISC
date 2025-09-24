@@ -12,7 +12,8 @@
       "Bash(git submodule:*)",
       "Bash(git rm:*)",
       "Bash(rm:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Read(//c/work/2025_09/**)"
     ],
     "deny": [],
     "ask": []
