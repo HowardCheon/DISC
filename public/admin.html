@@ -12,6 +12,7 @@
             <h1>DISC 검사 관리자</h1>
             <div class="admin-nav">
                 <button class="nav-btn active" onclick="showSection('dashboard')">대시보드</button>
+                <button class="nav-btn" onclick="showSection('testLinks')">검사 링크</button>
                 <button class="nav-btn" onclick="showSection('results')">검사 결과</button>
                 <button class="nav-btn" onclick="showSection('stats')">통계</button>
                 <button class="nav-btn" onclick="showSection('settings')">설정</button>
@@ -45,6 +46,72 @@
                 <div class="recent-tests">
                     <h3>최근 테스트 결과</h3>
                     <div id="recentTestsList"></div>
+                </div>
+            </div>
+
+            <!-- 검사 링크 섹션 -->
+            <div id="testLinks" class="admin-section">
+                <h2>검사 링크 생성</h2>
+
+                <div class="link-generator">
+                    <div class="generator-form">
+                        <h3>새 검사 링크 생성</h3>
+                        <div class="form-group">
+                            <label for="testTitle">검사 제목 (선택사항)</label>
+                            <input type="text" id="testTitle" placeholder="예: 2024년 직원 DISC 검사">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="testDescription">검사 설명 (선택사항)</label>
+                            <textarea id="testDescription" rows="3" placeholder="검사자에게 표시될 설명을 입력하세요..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="linkExpiry">링크 만료 설정</label>
+                            <select id="linkExpiry">
+                                <option value="never">만료 없음</option>
+                                <option value="1">1일 후</option>
+                                <option value="7" selected>7일 후</option>
+                                <option value="30">30일 후</option>
+                                <option value="90">90일 후</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="maxUses">최대 사용 횟수</label>
+                            <select id="maxUses">
+                                <option value="unlimited">제한 없음</option>
+                                <option value="1">1회</option>
+                                <option value="5">5회</option>
+                                <option value="10">10회</option>
+                                <option value="50" selected>50회</option>
+                                <option value="100">100회</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="generateTestLink()">검사 링크 생성</button>
+                    </div>
+
+                    <div class="generated-link" id="generatedLink" style="display: none;">
+                        <h3>생성된 검사 링크</h3>
+                        <div class="link-display">
+                            <div class="link-url" id="linkUrl"></div>
+                            <button class="btn btn-secondary" onclick="copyLink()">링크 복사</button>
+                        </div>
+                        <div class="link-info" id="linkInfo"></div>
+                        <div class="link-actions">
+                            <button class="btn btn-success" onclick="sendLinkByEmail()">이메일 전송</button>
+                            <button class="btn btn-info" onclick="generateQRCode()">QR 코드 생성</button>
+                            <button class="btn btn-warning" onclick="previewTestPage()">미리보기</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="active-links">
+                    <h3>활성 검사 링크 목록</h3>
+                    <div id="activeLinksList">
+                        <!-- 동적으로 생성 -->
+                    </div>
                 </div>
             </div>
 

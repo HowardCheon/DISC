@@ -2,6 +2,7 @@
 class AdminDashboard {
     constructor() {
         this.testResults = [];
+        this.testLinks = [];
         this.init();
     }
 
@@ -13,6 +14,7 @@ class AdminDashboard {
         }
 
         this.loadTestResults();
+        this.loadTestLinks();
         this.updateDashboard();
         this.loadRecentTests();
     }
@@ -306,6 +308,111 @@ class AdminDashboard {
         link.download = `disc_backup_${new Date().toISOString().slice(0, 10)}.json`;
         link.click();
     }
+
+    loadTestLinks() {
+        // LocalStorage에서 검사 링크 로드
+        const links = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('disc_test_link_')) {
+                try {
+                    const link = JSON.parse(localStorage.getItem(key));
+                    // 만료된 링크 체크
+                    if (!this.isLinkExpired(link)) {
+                        links.push(link);
+                    } else {
+                        localStorage.removeItem(key); // 만료된 링크 제거
+                    }
+                } catch (e) {
+                    console.error('Error parsing link:', e);
+                }
+            }
+        }
+
+        this.testLinks = links.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        this.displayActiveLinks();
+    }
+
+    isLinkExpired(link) {
+        if (link.expiry === 'never') return false;
+
+        const expiryDate = new Date(link.expiryDate);
+        const now = new Date();
+        return now > expiryDate;
+    }
+
+    generateTestLink(title, description, expiry, maxUses) {
+        const linkId = 'link_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
+        const testUrl = `${baseUrl}?linkId=${linkId}`;
+
+        const expiryDate = expiry === 'never' ? null :
+            new Date(Date.now() + parseInt(expiry) * 24 * 60 * 60 * 1000);
+
+        const linkData = {
+            id: linkId,
+            title: title || 'DISC 성격유형 검사',
+            description: description || '',
+            url: testUrl,
+            expiry: expiry,
+            expiryDate: expiryDate ? expiryDate.toISOString() : null,
+            maxUses: maxUses === 'unlimited' ? null : parseInt(maxUses),
+            currentUses: 0,
+            createdAt: new Date().toISOString(),
+            createdBy: localStorage.getItem('admin_username') || 'Admin'
+        };
+
+        // LocalStorage에 저장
+        localStorage.setItem(`disc_test_link_${linkId}`, JSON.stringify(linkData));
+
+        this.testLinks.unshift(linkData);
+        this.displayActiveLinks();
+
+        return linkData;
+    }
+
+    displayActiveLinks() {
+        const container = document.getElementById('activeLinksList');
+        if (!container) return;
+
+        if (this.testLinks.length === 0) {
+            container.innerHTML = '<p>생성된 검사 링크가 없습니다.</p>';
+            return;
+        }
+
+        container.innerHTML = this.testLinks.map(link => {
+            const expiryText = link.expiry === 'never' ? '만료 없음' :
+                `${new Date(link.expiryDate).toLocaleDateString('ko-KR')}까지`;
+
+            const usageText = link.maxUses === null ? '제한 없음' :
+                `${link.currentUses}/${link.maxUses}회 사용`;
+
+            const statusClass = this.isLinkExpired(link) ? 'expired' :
+                (link.maxUses && link.currentUses >= link.maxUses) ? 'depleted' : 'active';
+
+            return `
+                <div class="link-item ${statusClass}">
+                    <div class="link-header">
+                        <h4>${link.title}</h4>
+                        <span class="link-status">${statusClass === 'active' ? '활성' :
+                            statusClass === 'expired' ? '만료' : '사용완료'}</span>
+                    </div>
+                    <div class="link-details">
+                        <p><strong>URL:</strong> <a href="${link.url}" target="_blank">${link.url}</a></p>
+                        <p><strong>만료:</strong> ${expiryText}</p>
+                        <p><strong>사용횟수:</strong> ${usageText}</p>
+                        <p><strong>생성일:</strong> ${new Date(link.createdAt).toLocaleString('ko-KR')}</p>
+                        ${link.description ? `<p><strong>설명:</strong> ${link.description}</p>` : ''}
+                    </div>
+                    <div class="link-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="copyLinkToClipboard('${link.url}')">복사</button>
+                        <button class="btn btn-sm btn-info" onclick="viewLinkStats('${link.id}')">통계</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTestLink('${link.id}')">삭제</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
 }
 
 // 전역 함수들
@@ -386,6 +493,115 @@ function deleteResult(index) {
     window.adminDashboard.updateDashboard();
     window.adminDashboard.loadRecentTests();
     window.adminDashboard.displayResultsTable();
+}
+
+// 검사 링크 관련 전역 함수들
+function generateTestLink() {
+    const title = document.getElementById('testTitle').value;
+    const description = document.getElementById('testDescription').value;
+    const expiry = document.getElementById('linkExpiry').value;
+    const maxUses = document.getElementById('maxUses').value;
+
+    const linkData = window.adminDashboard.generateTestLink(title, description, expiry, maxUses);
+
+    // 생성된 링크 표시
+    const generatedSection = document.getElementById('generatedLink');
+    const linkUrl = document.getElementById('linkUrl');
+    const linkInfo = document.getElementById('linkInfo');
+
+    linkUrl.textContent = linkData.url;
+
+    const expiryText = linkData.expiry === 'never' ? '만료 없음' :
+        `${new Date(linkData.expiryDate).toLocaleDateString('ko-KR')}까지`;
+    const usageText = linkData.maxUses === null ? '제한 없음' : `최대 ${linkData.maxUses}회 사용`;
+
+    linkInfo.innerHTML = `
+        <p><strong>제목:</strong> ${linkData.title}</p>
+        ${linkData.description ? `<p><strong>설명:</strong> ${linkData.description}</p>` : ''}
+        <p><strong>만료:</strong> ${expiryText}</p>
+        <p><strong>사용제한:</strong> ${usageText}</p>
+        <p><strong>생성일:</strong> ${new Date(linkData.createdAt).toLocaleString('ko-KR')}</p>
+    `;
+
+    generatedSection.style.display = 'block';
+
+    // 폼 리셋
+    document.getElementById('testTitle').value = '';
+    document.getElementById('testDescription').value = '';
+}
+
+function copyLink() {
+    const linkUrl = document.getElementById('linkUrl').textContent;
+    copyLinkToClipboard(linkUrl);
+}
+
+function copyLinkToClipboard(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        alert('링크가 클립보드에 복사되었습니다!');
+    }).catch(err => {
+        console.error('링크 복사 실패:', err);
+        // 폴백 방법
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('링크가 클립보드에 복사되었습니다!');
+    });
+}
+
+function sendLinkByEmail() {
+    const linkUrl = document.getElementById('linkUrl').textContent;
+    const title = document.getElementById('testTitle').value || 'DISC 성격유형 검사';
+
+    const subject = encodeURIComponent(`${title} 참여 요청`);
+    const body = encodeURIComponent(
+        `안녕하세요.\n\n${title}에 참여해 주시기 바랍니다.\n\n` +
+        `아래 링크를 클릭하여 검사를 시작하세요:\n${linkUrl}\n\n` +
+        `감사합니다.`
+    );
+
+    window.open(`mailto:?subject=${subject}&body=${body}`);
+}
+
+function generateQRCode() {
+    const linkUrl = document.getElementById('linkUrl').textContent;
+    // QR 코드 생성 API 사용 (예: qr-server.com)
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(linkUrl)}`;
+
+    // 새 창에서 QR 코드 표시
+    const qrWindow = window.open('', '_blank', 'width=400,height=400');
+    qrWindow.document.write(`
+        <html>
+            <head><title>QR 코드</title></head>
+            <body style="text-align: center; padding: 20px;">
+                <h3>검사 링크 QR 코드</h3>
+                <img src="${qrCodeUrl}" alt="QR Code" />
+                <p><small>${linkUrl}</small></p>
+                <button onclick="window.print()">인쇄</button>
+            </body>
+        </html>
+    `);
+}
+
+function previewTestPage() {
+    const linkUrl = document.getElementById('linkUrl').textContent;
+    window.open(linkUrl, '_blank');
+}
+
+function viewLinkStats(linkId) {
+    alert(`링크 통계 기능은 향후 구현 예정입니다. (링크 ID: ${linkId})`);
+}
+
+function deleteTestLink(linkId) {
+    if (!confirm('이 검사 링크를 삭제하시겠습니까?')) {
+        return;
+    }
+
+    localStorage.removeItem(`disc_test_link_${linkId}`);
+    window.adminDashboard.loadTestLinks();
+    alert('검사 링크가 삭제되었습니다.');
 }
 
 // DISC 결과 표시 클래스 (result.js에서 가져옴)
@@ -878,6 +1094,202 @@ function printModalResult() {
 // CSS 스타일 추가
 const modalStyles = `
     <style>
+        /* 검사 링크 관련 스타일 */
+        .link-generator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .generator-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .generator-form h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .generated-link {
+            background: #e8f5e8;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .generated-link h3 {
+            margin-top: 0;
+            color: #155724;
+        }
+
+        .link-display {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .link-url {
+            flex: 1;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 14px;
+            color: #0066cc;
+        }
+
+        .link-info {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+
+        .link-info p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .link-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .active-links {
+            margin-top: 30px;
+        }
+
+        .link-item {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: box-shadow 0.2s;
+        }
+
+        .link-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .link-item.expired {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .link-item.depleted {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+
+        .link-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .link-header h4 {
+            margin: 0;
+            color: #333;
+        }
+
+        .link-status {
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .link-item.active .link-status {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .link-item.expired .link-status {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .link-item.depleted .link-status {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .link-details {
+            margin-bottom: 15px;
+        }
+
+        .link-details p {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .link-details a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .link-details a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .link-generator {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .link-actions {
+                justify-content: center;
+            }
+
+            .link-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
         .modal {
             display: none;
             position: fixed;
