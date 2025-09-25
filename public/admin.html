@@ -95,6 +95,55 @@
         </main>
     </div>
 
+    <!-- 상세 결과 모달 -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">검사 결과</h2>
+                <span class="close" onclick="closeResultModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="result-container">
+                    <div class="result-summary">
+                        <h3>주요 성격 유형</h3>
+                        <div class="main-type" id="modalMainType">
+                            <!-- 동적으로 생성 -->
+                        </div>
+                    </div>
+
+                    <div class="result-charts">
+                        <h4>상세 결과 그래프</h4>
+                        <div class="charts-container">
+                            <div class="chart-section">
+                                <h5>그래프 I</h5>
+                                <canvas id="modalChart1" width="300" height="400"></canvas>
+                            </div>
+                            <div class="chart-section">
+                                <h5>그래프 II</h5>
+                                <canvas id="modalChart2" width="300" height="400"></canvas>
+                            </div>
+                            <div class="chart-section">
+                                <h5>그래프 III</h5>
+                                <canvas id="modalChart3" width="300" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-description">
+                        <div class="type-descriptions" id="modalTypeDescriptions">
+                            <!-- 동적으로 생성 -->
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="printModalResult()">결과 인쇄</button>
+                        <button class="btn btn-secondary" onclick="closeResultModal()">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/admin.js"></script>
 </body>
 </html>
